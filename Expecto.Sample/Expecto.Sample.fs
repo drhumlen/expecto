@@ -36,12 +36,19 @@ let printingFsCheck =
       maxTest = 128
   }
 
+type Person = {Name: string; Age: int}
 [<Tests>]
 let tests =
   testList "samples" [
     testCase "universe exists (╭ರᴥ•́)" <| fun _ ->
       let subject = true
       Expect.isTrue subject "I compute, therefore I am."
+
+    ftest "Testing diff colorization" {
+      let personA = {Name = "Aname"; Age = 30}
+      let personB = {Name = "Bname"; Age = 42}
+      Expect.equal ( [personA; personB; personB]) ( [personA; {personA with Name = "Some long name"}; personB]) "."
+    }
 
     testCase "when true is not (should fail)" <| fun _ ->
       let subject = false

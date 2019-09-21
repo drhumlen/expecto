@@ -4,6 +4,9 @@ module Expecto.Expect
 [<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Expecto.BenchmarkDotNet")>]
 ()
 
+open DiffPlex
+open DiffPlex.DiffBuilder
+open DiffPlex.DiffBuilder.Model
 open System
 open System.Text.RegularExpressions
 open Expecto.Logging
@@ -57,14 +60,37 @@ let private printVerses (firstName:string) first (secondName:string) second =
       string f, string s
     | f, s ->
       sprintf "%A" f, sprintf "%A" s
-  let prefix =
-    if  first.Length > 100 || second.Length > 100
-     || Seq.exists ((=)'\n') first || Seq.exists ((=)'\n') second
-    then '\n' else ' '
-  let first = sprintf "\n%s:%c%s" firstName prefix first
-  let second = sprintf "\n%s:%c%s" secondName prefix second
-  let diffs = allDiffs first second
-  String.Concat(highlightAllGreen diffs first, highlightAllRed diffs second)
+  let differ = InlineDiffBuilder(Differ())
+  let diff = differ.BuildDiffModel(first, second)
+  let colorizedDiff =
+    diff.Lines
+    |> Seq.toList
+    |> List.map (fun line ->
+      match line.Type with
+      | ChangeType.Inserted ->
+        sprintf "%s%s%s"
+          (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Green)
+          line.Text
+          ANSIOutputWriter.colourReset
+      | ChangeType.Deleted ->
+        sprintf "%s%s%s"
+          (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Red)
+          line.Text
+          ANSIOutputWriter.colourReset
+      | ChangeType.Modified ->
+        sprintf "%s%s%s"
+          (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Blue)
+          line.Text
+          ANSIOutputWriter.colourReset
+      | ChangeType.Unchanged | ChangeType.Imaginary | _ ->
+        sprintf "%s%s%s"
+          (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Gray)
+          line.Text
+          ANSIOutputWriter.colourReset
+      )
+    |> fun x -> String.Join("\n", x)
+
+  sprintf "%s -- Got:\n%s\n -- Expected:\n%s\n -- Diff:\n%s\n" ANSIOutputWriter.colourReset first second colorizedDiff
 
 /// Expects f to throw an exception.
 let throws f message =
@@ -327,12 +353,11 @@ let equal (actual : 'a) (expected : 'a) message =
             let currentE = value ei.Current e
             if currentA = currentE then ()
             else
-              failtestf "%s.
-Record does not match at position %i for field named `%s`. Expected field with value: %A, but got %A.%s"
+              failtestf "%s.\nRecord does not match at position %i for field named `%s`. Expected field with value: %A, but got %A.%s"
                 message (i + 1) (name()) currentE currentA (printVerses "expected" expected "  actual" actual)
           i <- i + 1
       else
-        failtestf "%s.%s" message (printVerses "expected" expected "  actual" actual)
+        failtestf "%s.\n%s" message (printVerses "expected" expected "\nactual" actual)
 
 /// Expects the two values not to equal each other.
 let notEqual (actual : 'a) (expected : 'a) message =
