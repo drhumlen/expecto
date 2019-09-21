@@ -37,6 +37,8 @@ let printingFsCheck =
   }
 
 type Person = {Name: string; Age: int}
+type Weather ={Type:string; Percipation:string}
+type SillyTestType ={A:int;Nom:string; Weather:Weather; Tweets:int}
 [<Tests>]
 let tests =
   testList "samples" [
@@ -49,6 +51,17 @@ let tests =
       let personB = {Name = "Bname"; Age = 42}
       Expect.equal ( [personA; personB; personB]) ( [personA; {personB with Name = "Cname"; Age = 104210}; personA]) "."
     }
+
+    test "Testing diff colorization II" {
+      let personA = {Name = "Aname"; Age = 30}
+      let personB = {Name = "Bname"; Age = 42}
+      Expect.equal
+        { A = 12; Nom = "fsmlksdf"; Weather = { Type="Clody"; Percipation="2mm" }; Tweets = 101 }
+        { A = 13; Nom = "fsmlksdf"; Weather = { Type="Sunny"; Percipation="5mm" }; Tweets = 101 }
+        "..."
+    }
+
+
     test "Testing diff with texts" {
         let  oldText =
             @"We the people
