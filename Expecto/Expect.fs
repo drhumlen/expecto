@@ -54,43 +54,59 @@ let private highlightAllGreen diffs (s:string) =
   ) s diffs
 
 let private printVerses (firstName:string) first (secondName:string) second =
-  let first,second =
+  let first, second =
     match box first, box second with
     | (:? string as f), (:? string as s) ->
       string f, string s
     | f, s ->
       sprintf "%A" f, sprintf "%A" s
+
   let differ = SideBySideDiffBuilder(Differ())
   let diff = differ.BuildDiffModel(first, second)
+
+  let coloredText typ text =
+    match typ with
+    | ChangeType.Inserted ->
+      sprintf "%s%s%s"
+        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Green)
+        text
+        ANSIOutputWriter.colourReset
+    | ChangeType.Deleted ->
+      sprintf "%s%s%s"
+        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Red)
+        text
+        ANSIOutputWriter.colourReset
+    | ChangeType.Modified ->
+      sprintf "%s%s%s"
+        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Blue)
+        text
+        ANSIOutputWriter.colourReset
+    | ChangeType.Unchanged | ChangeType.Imaginary | _ ->
+      sprintf "%s%s%s"
+        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Gray)
+        text
+        ANSIOutputWriter.colourReset
+
   let colorizedDiff =
+    diff.OldText.Lines
+    |> Seq.toList
+    |> List.map (fun line ->
+      let pieces = line.SubPieces |> Seq.toList
+      let coloredPieces = pieces |> List.map (fun piece -> coloredText piece.Type piece.Text)
+      if pieces.Length = 0 then coloredText line.Type line.Text else coloredPieces |> fun x -> String.Join("", x)
+      )
+    |> fun x -> String.Join("\n", x)
+  let colorizedDiff' =
     diff.NewText.Lines
     |> Seq.toList
     |> List.map (fun line ->
-      match line.Type with
-      | ChangeType.Inserted ->
-        sprintf "%s%s%s"
-          (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Green)
-          line.Text
-          ANSIOutputWriter.colourReset
-      | ChangeType.Deleted ->
-        sprintf "%s%s%s"
-          (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Red)
-          line.Text
-          ANSIOutputWriter.colourReset
-      | ChangeType.Modified ->
-        sprintf "%s%s%s"
-          (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Blue)
-          line.Text
-          ANSIOutputWriter.colourReset
-      | ChangeType.Unchanged | ChangeType.Imaginary | _ ->
-        sprintf "%s%s%s"
-          (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Gray)
-          line.Text
-          ANSIOutputWriter.colourReset
+      let pieces = line.SubPieces |> Seq.toList
+      let coloredPieces = pieces |> List.map (fun piece -> coloredText piece.Type piece.Text)
+      if pieces.Length = 0 then coloredText line.Type line.Text else coloredPieces |> fun x -> String.Join("", x)
       )
     |> fun x -> String.Join("\n", x)
 
-  sprintf "%s -- Got:\n%s\n -- Expected:\n%s\n -- Diff:\n%s\n" ANSIOutputWriter.colourReset first second colorizedDiff
+  sprintf "%s\n---------- Got: ----------\n%s\n---------- Expected: ----------\n%s\n" ANSIOutputWriter.colourReset colorizedDiff colorizedDiff'
 
 /// Expects f to throw an exception.
 let throws f message =

@@ -44,10 +44,34 @@ let tests =
       let subject = true
       Expect.isTrue subject "I compute, therefore I am."
 
-    ftest "Testing diff colorization" {
+    test "Testing diff colorization" {
       let personA = {Name = "Aname"; Age = 30}
       let personB = {Name = "Bname"; Age = 42}
-      Expect.equal ( [personA; personB; personB]) ( [personA; {personA with Name = "Some long name"}; personB]) "."
+      Expect.equal ( [personA; personB; personB]) ( [personA; {personB with Name = "Cname"; Age = 104210}; personA]) "."
+    }
+    test "Testing diff with texts" {
+        let  oldText =
+            @"We the people
+of the united states of america
+establish justice
+ensure domestic tranquility
+provide for the fucking common defence and
+secure the blessing of liberty
+to ourselves and our posterity
+"
+
+        let  newText =
+            @"We the people
+in order to form a more perfect union
+establish justice
+ensure domestic tranquility
+promote the fucking general welfare and
+secure the blessing of liberty
+to ourselves and our posterity
+do ordain and establish this constitution
+for the United States of America
+"
+      Expect.equal oldText newText "."
     }
 
     testCase "when true is not (should fail)" <| fun _ ->
