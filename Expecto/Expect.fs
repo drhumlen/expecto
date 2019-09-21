@@ -60,10 +60,10 @@ let private printVerses (firstName:string) first (secondName:string) second =
       string f, string s
     | f, s ->
       sprintf "%A" f, sprintf "%A" s
-  let differ = InlineDiffBuilder(Differ())
+  let differ = SideBySideDiffBuilder(Differ())
   let diff = differ.BuildDiffModel(first, second)
   let colorizedDiff =
-    diff.Lines
+    diff.NewText.Lines
     |> Seq.toList
     |> List.map (fun line ->
       match line.Type with
