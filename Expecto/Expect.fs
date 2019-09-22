@@ -93,7 +93,10 @@ let private printVerses (firstName:string) first (secondName:string) second =
     |> List.map (fun line ->
       let pieces = line.SubPieces |> Seq.toList
       let coloredPieces = pieces |> List.map (fun piece -> coloredText piece.Type piece.Text)
-      if pieces.Length = 0 then coloredText line.Type line.Text else coloredPieces |> fun x -> String.Join("", x)
+      if pieces.Length = 0 then
+        coloredText line.Type line.Text
+      else
+        coloredPieces |> fun x -> String.Join("", x)
       )
     |> fun x -> String.Join("\n", x)
   let colorizedDiff' =
