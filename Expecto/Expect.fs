@@ -65,30 +65,19 @@ let private printVerses (firstName:string) first (secondName:string) second =
   let diff = differ.BuildDiffModel(first, second)
 
   let coloredText typ text =
+    let colorSprintf color =
+      sprintf "%s%s%s"
+        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) color)
+        text
+        ANSIOutputWriter.colourReset
     match typ with
-    | ChangeType.Inserted ->
-      sprintf "%s%s%s"
-        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Green)
-        text
-        ANSIOutputWriter.colourReset
-    | ChangeType.Deleted ->
-      sprintf "%s%s%s"
-        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Red)
-        text
-        ANSIOutputWriter.colourReset
-    | ChangeType.Modified ->
-      sprintf "%s%s%s"
-        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Blue)
-        text
-        ANSIOutputWriter.colourReset
-    | ChangeType.Unchanged | ChangeType.Imaginary | _ ->
-      sprintf "%s%s%s"
-        (ANSIOutputWriter.colourText (ANSIOutputWriter.getColour()) ConsoleColor.Gray)
-        text
-        ANSIOutputWriter.colourReset
+    | ChangeType.Inserted -> colorSprintf ConsoleColor.Green
+    | ChangeType.Deleted -> colorSprintf ConsoleColor.Red
+    | ChangeType.Modified -> colorSprintf ConsoleColor.Blue
+    | ChangeType.Unchanged | ChangeType.Imaginary | _ -> colorSprintf ConsoleColor.Gray
 
-  let colorizedDiff =
-    diff.OldText.Lines
+  let colorizedDiff (lines: DiffPiece seq) =
+    lines
     |> Seq.toList
     |> List.map (fun line ->
       let pieces = line.SubPieces |> Seq.toList
@@ -99,17 +88,8 @@ let private printVerses (firstName:string) first (secondName:string) second =
         coloredPieces |> fun x -> String.Join("", x)
       )
     |> fun x -> String.Join("\n", x)
-  let colorizedDiff' =
-    diff.NewText.Lines
-    |> Seq.toList
-    |> List.map (fun line ->
-      let pieces = line.SubPieces |> Seq.toList
-      let coloredPieces = pieces |> List.map (fun piece -> coloredText piece.Type piece.Text)
-      if pieces.Length = 0 then coloredText line.Type line.Text else coloredPieces |> fun x -> String.Join("", x)
-      )
-    |> fun x -> String.Join("\n", x)
 
-  sprintf "%s\n---------- Got: ----------\n%s\n---------- Expected: ----------\n%s\n" ANSIOutputWriter.colourReset colorizedDiff colorizedDiff'
+  sprintf "%s\n---------- Got: ----------\n%s\n---------- Expected: ----------\n%s\n" ANSIOutputWriter.colourReset (colorizedDiff diff.OldText.Lines) (colorizedDiff diff.NewText.Lines)
 
 /// Expects f to throw an exception.
 let throws f message =
