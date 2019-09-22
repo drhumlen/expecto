@@ -57,7 +57,7 @@ let tests =
       let personB = {Name = "Bname"; Age = 42}
       Expect.equal
         { A = 12; Nom = "fsmlksdf"; Weather = { Type="Clody"; Percipation="2mm" }; Tweets = 101 }
-        { A = 13; Nom = "fsmlksdf"; Weather = { Type="Sunny"; Percipation="5mm" }; Tweets = 101 }
+        { A = 13; Nom = "fsmlksdf"; Weather = { Type="Thunderstorms"; Percipation="5mm" }; Tweets = 101 }
         "..."
     }
 

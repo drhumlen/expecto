@@ -78,13 +78,11 @@ let private printVerses (firstName:string) first (secondName:string) second =
 
   let colorizedDiff (lines: DiffPiece seq) =
     lines
-    |> Seq.toList
-    |> List.map (fun line ->
-      let pieces = line.SubPieces |> Seq.toList
-      let coloredPieces = pieces |> List.map (fun piece -> coloredText piece.Type piece.Text)
-      if pieces.Length = 0 then
+    |> Seq.map (fun line ->
+      if line.SubPieces.Count = 0 then
         coloredText line.Type line.Text
       else
+        let coloredPieces = line.SubPieces |> Seq.map (fun piece -> coloredText piece.Type piece.Text)
         coloredPieces |> fun x -> String.Join("", x)
       )
     |> fun x -> String.Join("\n", x)
