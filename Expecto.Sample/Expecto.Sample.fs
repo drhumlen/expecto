@@ -55,8 +55,8 @@ module ColorizationTests =
   let colorizationTests =
     testList "Colorization tests. These should all fail to diplay the diff" [
       test "Testing diff colorization" {
-        let personA = {Name = "Aname"; Age = 30}
-        let personB = {Name = "Bname"; Age = 42}
+        let personA = {Name = "Kesam"; Age = 30}
+        let personB = {Name = "Charles"; Age = 42}
         Expect.equal ( [personA; personB; personB]) ( [personA; {personB with Name = "Cname"; Age = 104210}; personA]) "."
       }
 
@@ -64,6 +64,13 @@ module ColorizationTests =
         Expect.equal
           { A = 12; Nom = "fsmlksdf"; Weather = { Type="Clody"; Precipitation="2mm" }; Tweets = 101 }
           { A = 13; Nom = "fsmlksdf"; Weather = { Type="Thunderstorms"; Precipitation="5mm" }; Tweets = 101 }
+          "..."
+      }
+
+      test "Testing diff colorization III" {
+        Expect.equal
+          { A = 12; Nom = "James"; Weather = { Type="Clody"; Precipitation="2mm" }; Tweets = 101 }
+          { A = 13; Nom = "Bond"; Weather = { Type="Thunderstorms"; Precipitation="5mm" }; Tweets = 101 }
           "..."
       }
 
