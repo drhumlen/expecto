@@ -74,7 +74,7 @@ let private printVerses (firstName:string) first (secondName:string) second =
     | ChangeType.Inserted -> colorSprintf ConsoleColor.Green
     | ChangeType.Deleted -> colorSprintf ConsoleColor.Red
     | ChangeType.Modified -> colorSprintf ConsoleColor.Blue
-    | ChangeType.Unchanged | ChangeType.Imaginary | _ -> colorSprintf ConsoleColor.Gray
+    | ChangeType.Unchanged | ChangeType.Imaginary | _ -> text
 
   let colorizedDiff (lines: DiffPiece seq) =
     lines
@@ -87,7 +87,7 @@ let private printVerses (firstName:string) first (secondName:string) second =
       )
     |> fun x -> String.Join("\n", x)
 
-  sprintf "%s\n---------- Got: ----------\n%s\n---------- Expected: ----------\n%s\n" ANSIOutputWriter.colourReset (colorizedDiff diff.OldText.Lines) (colorizedDiff diff.NewText.Lines)
+  sprintf "%s\n---------- Actual: --------------------\n%s\n---------- Expected: ------------------\n%s\n" ANSIOutputWriter.colourReset (colorizedDiff diff.OldText.Lines) (colorizedDiff diff.NewText.Lines)
 
 /// Expects f to throw an exception.
 let throws f message =
