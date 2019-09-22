@@ -36,9 +36,20 @@ let printingFsCheck =
       maxTest = 128
   }
 
-type Person = {Name: string; Age: int}
-type Weather ={Type:string; Percipation:string}
-type SillyTestType ={A:int;Nom:string; Weather:Weather; Tweets:int}
+type Person = {
+  Name: string
+  Age: int
+}
+type Weather = {
+  Type: string
+  Precipitation: string
+}
+type SillyTestType ={
+  A: int
+  Nom: string
+  Weather: Weather
+  Tweets: int
+}
 [<Tests>]
 let tests =
   testList "samples" [
@@ -53,14 +64,11 @@ let tests =
     }
 
     test "Testing diff colorization II" {
-      let personA = {Name = "Aname"; Age = 30}
-      let personB = {Name = "Bname"; Age = 42}
       Expect.equal
-        { A = 12; Nom = "fsmlksdf"; Weather = { Type="Clody"; Percipation="2mm" }; Tweets = 101 }
-        { A = 13; Nom = "fsmlksdf"; Weather = { Type="Thunderstorms"; Percipation="5mm" }; Tweets = 101 }
+        { A = 12; Nom = "fsmlksdf"; Weather = { Type="Clody"; Precipitation="2mm" }; Tweets = 101 }
+        { A = 13; Nom = "fsmlksdf"; Weather = { Type="Thunderstorms"; Precipitation="5mm" }; Tweets = 101 }
         "..."
     }
-
 
     test "Testing diff with texts" {
         let  oldText =
